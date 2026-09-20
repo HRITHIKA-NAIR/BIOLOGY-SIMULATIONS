@@ -1,33 +1,26 @@
 # Biology simulations
 
-Practical-by-practical interactive biology activities. First prototype: photosynthesis.
+Original browser-based animated practicals, built one practical at a time. First activity: photosynthesis.
 
 ## Run
-Open index.html in a modern browser from a local checkout. No installation, server, network connection or build is required. The root page opens photosynthesis/index.html.
+Open index.html locally, or open the published GitHub Pages site. No build or dependencies required.
+
+## Animated lesson
+- Watch is the default. Press Play once: apparatus fades into place, pondweed lowers into its tube, the lamp moves to 40, 20 and 10 cm, and each adjustment and measurement plays automatically.
+- Try it follows the same sequence but pauses at lamp-placement stages. Drag the lamp itself into the outlined destination. Touch and mouse work through pointer events. Alternatively select the lamp then its outline, or focus the lamp and press Enter/Space.
+- Play/Pause uses one animation clock. Back and Next reconstruct the selected stage. Restart and switching modes reset the lesson. Skipping measurements marks results as skipped, not as observed.
+- Results appear only at the conclusion. No sliders, separate timers, manual recording or dashboard panels.
 
 ## Files
-- photosynthesis/index.html: accessible interface and SVG apparatus diagram.
-- photosynthesis/style.css: responsive layout.
-- photosynthesis/script.js: stages, shared animation clock, measurement, results and CSV export.
-
-## Try the practical
-1. Next to choose distance; set 10–50 cm.
-2. Next to adjustment; start and wait, or skip.
-3. Start measurement. Pause freezes the clock and bubbles. Choose 10× for a short demonstration.
-4. Record the completed result. Restart this trial for repeats, or Back to choose a new distance.
-5. Compare means and download CSV. Reset experiment clears every recorded trial.
+photosynthesis/index.html: scene, explanation and playback controls.
+photosynthesis/style.css: responsive player styling.
+photosynthesis/script.js: automatic stage sequence, direct lamp interaction, bubbles and results.
 
 ## Scientific scope
-This is a guided prototype, not a verified reproduction of every step of the linked video. Model rate = 90 / (1 + (distance_cm / 20)^2) bubbles per minute. This is an illustrative saturating light response; it is not a fitted biological model. Repeats are deterministic and will give the same count; real trials vary. The water bath, fixed 25°C and fixed solution concentration represent controlled conditions. Bubble counting is only an approximation to oxygen volume production. Distances, 30-second adjustment and 60-second measurement are prototype choices pending the reference method. AQA source: https://www.aqa.org.uk/subjects/biology/gcse/biology-8461/specification/practical-assessment . Reference video: https://www.youtube.com/watch?v=cBCKedXdFeE .
+Illustrative model: 90 / (1 + (distance_cm / 20)^2) bubbles per minute; deterministic simulated counts. Each 60-second measurement plays in 12 seconds. Adjustment time is abbreviated. Temperature is held at 25°C; pondweed and solution concentration stay fixed. Real bubbles differ in size and real measurements need repeats. This demonstration is not a replacement for carrying out or evaluating the full practical. The reference video's complete method has not yet been verified; distances and timings remain prototype choices.
 
-## Next iteration
-Verify the full video method, add equipment assembly and a complete Watch mode. This version includes a lamp slider and measurement playback, not draggable apparatus or a full automatic demonstration.
-
-## Development
-Each practical lives in its own directory. This repository starts with photosynthesis; subsequent practicals can reuse the controls and result-table structure.
+Reference video: https://www.youtube.com/watch?v=cBCKedXdFeE
+AQA: https://www.aqa.org.uk/subjects/biology/gcse/biology-8461/specification/practical-assessment
 
 ## Validation
-JavaScript syntax and model/control checks passed for adjustment, measurement, pause, duplicate-record prevention and reset. Browser visual testing could not run in the initial environment because its browser download was unavailable.
-
-## Hosting
-This is a static application. A root index.html opens the photosynthesis practical. Hosting is not enabled by committing these files.
+Syntax and state tests passed: full Watch sequence, simulated counts (18,45,72), Try-mode pauses, placement continuation, pause, back-navigation invalidation, skipped data and restart. Browser rendering and real pointer-device testing remain unverified because no browser executable is available in the authoring environment.
