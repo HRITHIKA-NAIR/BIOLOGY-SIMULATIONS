@@ -11,19 +11,19 @@ import {
 const l = practicals.find((p) => p.id === "photosynthesis");
 test("watch advances, pause freezes, and try waits for a meaningful object action", () => {
   let s = { ...initial(l), playing: true };
-  s = advance(l, s, 7);
+  s = advance(l, s, l.steps[s.index].duration);
   assert.equal(s.index, 1);
   s = { ...s, mode: "try" };
   assert.ok(awaiting(l, s));
   assert.deepEqual(advance(l, s, 99), s);
   s = { ...s, acted: true };
-  assert.equal(advance(l, s, 7).index, 2);
+  assert.equal(advance(l, s, l.steps[s.index].duration).index, 2);
   s = { ...s, playing: false };
   assert.deepEqual(advance(l, s, 99), s);
 });
 test("restoration clamps invalid state and never auto-plays", () => {
   let s = initial(l, {
-    version: 1,
+    version: l.version,
     index: 999,
     elapsed: Infinity,
     mode: "bad",

@@ -196,3 +196,88 @@ test("dragging accepts the correct target and rejects an incorrect drop", async 
   await expect(page.locator("#action-row")).toBeHidden();
   await expect(page.locator("#play")).toHaveText("Pause");
 });
+
+test("process motion changes every practical and stops precisely on pause", async ({
+  page,
+}) => {
+  for (const [id, index] of [
+    ["microscopy", 3],
+    ["enzymes", 3],
+    ["osmosis", 3],
+    ["photosynthesis", 3],
+    ["respiration", 3],
+    ["fieldwork", 3],
+    ["food-tests", 2],
+    ["antimicrobials", 3],
+  ]) {
+    await page.goto(base + "practicals/" + id + "/");
+    await page.locator(`[data-seek="${index}"]`).click();
+    const before = await page.locator("#scene > svg").innerHTML();
+    await page.locator("#play").click();
+    await expect
+      .poll(() => page.locator("#scene > svg").innerHTML())
+      .not.toBe(before);
+    await page.locator("#play").click();
+    const paused = await page.locator("#scene > svg").innerHTML();
+    await page.waitForTimeout(120);
+    expect(await page.locator("#scene > svg").innerHTML()).toBe(paused);
+  }
+});
+test("alternative methods restore the correct checkpoint and mobile controls remain readable", async ({
+  page,
+}) => {
+  await page.goto(base + "practicals/fieldwork/");
+  await page.locator("#method-choice").selectOption("random");
+  await page.locator("#remember").check();
+  await page.locator('[data-seek="2"]').click();
+  await expect(page.locator("#stage-title")).toHaveText("Place the quadrat");
+  await page.reload();
+  await expect(page.locator("#method-choice")).toHaveValue("random");
+  await expect(page.locator("#stage-title")).toHaveText("Place the quadrat");
+  await page.goto(base + "learning/");
+  await expect(
+    page.getByRole("link", { name: "Resume practical" }),
+  ).toBeVisible();
+  await page.goto(base + "practicals/microscopy/");
+  await page.locator("#method-choice").selectOption("prepared");
+  await page.locator('[data-seek="1"]').click();
+  await expect(page.locator("#stage-title")).toHaveText("Secure the slide");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator("#large-text").check();
+  expect(
+    await page
+      .locator("#caption")
+      .evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
+  ).toBeGreaterThanOrEqual(22);
+  await page.locator("#zoom-scene").click();
+  expect(
+    await page
+      .locator("#scene")
+      .evaluate((el) => el.scrollWidth > el.clientWidth),
+  ).toBe(true);
+  expect(
+    await page.evaluate(
+      () => document.documentElement.scrollWidth <= innerWidth,
+    ),
+  ).toBe(true);
+});
+
+test("indicator colour develops gradually rather than switching at a stage boundary", async ({
+  page,
+}) => {
+  await page.clock.install();
+  await page.goto(base + "practicals/photosynthesis/");
+  await page.locator('[data-seek="3"]').click();
+  const liquid = page.locator("#scene > svg [data-liquid]").first();
+  const start = await liquid.getAttribute("fill");
+  await page.locator("#play").click();
+  await page.clock.runFor(4500);
+  const middle = await liquid.getAttribute("fill");
+  await page.clock.runFor(4500);
+  const later = await liquid.getAttribute("fill");
+  expect(middle).not.toBe(start);
+  expect(later).not.toBe(middle);
+  await page.locator("#play").click();
+  await page.clock.runFor(2000);
+  expect(await liquid.getAttribute("fill")).toBe(later);
+});
