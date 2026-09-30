@@ -1,3 +1,4 @@
+import { notebook } from "./notebook.js";
 export const pearson =
   "https://www.pearson.com/en-gb/schools/subject-resources/science/tried-and-tested/support-from-pearson/gcse-core-practical-videos/biology-core.html";
 const sheets =
@@ -6,7 +7,7 @@ const step = (title, text, action = null) => ({
   title,
   text,
   action,
-  duration: 7,
+  duration: 11,
 });
 export const practicals = [
   {
@@ -41,12 +42,12 @@ export const practicals = [
       ),
       step(
         "Start with low power",
-        "Secure the slide. Select the lowest-power objective and focus carefully.",
+        "Secure the slide and select the lowest-power objective. Watch from the side as you bring the lens close, without touching the slide; focus away carefully.",
         "Place the slide on the stage",
       ),
       step(
         "Observe and record",
-        "Use higher power for detail. Draw and label visible structures; record magnification. Onion bulb epidermis normally lacks chloroplasts.",
+        "Use fine focus at higher power. Draw and label visible structures; record magnification. Onion bulb epidermis normally lacks chloroplasts.",
       ),
     ],
     concept:
@@ -240,7 +241,7 @@ export const practicals = [
       ),
       step(
         "Compare fairly",
-        "Repeat at approved temperatures with the same number of organisms. Use the control to interpret environmental pressure changes.",
+        "Repeat at approved temperatures with a known, comparable mass of organisms. Use the control to interpret environmental pressure changes.",
       ),
     ],
     concept:
@@ -401,7 +402,8 @@ export const practicals = [
   },
 ].map((p) => ({
   ...p,
-  version: 1,
+  ...notebook[p.id],
+  version: 2,
   source: pearson,
   sheet: sheets + p.sheet,
   videoUrl: `https://www.youtube.com/watch?v=${p.video}`,

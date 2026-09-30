@@ -1,7 +1,7 @@
-const txt = (x, y, t, size = 16, fill = "#35584e") =>
+const txt = (x, y, t, size = 16, fill = "#244867") =>
   `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" font-family="system-ui,sans-serif">${t}</text>`;
 const glass = (x, y, w = 70, h = 140, colour = "#9dc9ba") =>
-  `<g transform="translate(${x} ${y})"><path d="M0 0V${h - 15}Q0 ${h} 15 ${h}H${w - 15}Q${w} ${h} ${w} ${h - 15}V0" fill="#fff" fill-opacity=".6" stroke="#54786e" stroke-width="3"/><path d="M4 48V${h - 15}Q4 ${h - 4} 16 ${h - 4}H${w - 16}Q${w - 4} ${h - 4} ${w - 4} ${h - 15}V48Z" fill="${colour}" fill-opacity=".7"/><path d="M12 14V${h - 25}" stroke="white" stroke-width="5" stroke-linecap="round"/></g>`;
+  `<g transform="translate(${x} ${y})"><path d="M0 0V${h - 15}Q0 ${h} 15 ${h}H${w - 15}Q${w} ${h} ${w} ${h - 15}V0" fill="#fff" fill-opacity=".6" stroke="#46779c" stroke-width="3"/><path d="M4 48V${h - 15}Q4 ${h - 4} 16 ${h - 4}H${w - 16}Q${w - 4} ${h - 4} ${w - 4} ${h - 15}V48Z" data-liquid fill="${colour}" fill-opacity=".8"/><path d="M12 14V${h - 25}" stroke="white" stroke-width="5" stroke-linecap="round"/></g>`;
 const lamp = `<path d="M-34 10h68l-8-40h-52z" fill="#efbe6e" stroke="#775d36" stroke-width="3"/><path d="M0 10v130M-45 140h90" stroke="#48665e" stroke-width="9" stroke-linecap="round"/><ellipse cy="11" rx="29" ry="7" fill="#fff1ba"/>`;
 const strip = `<rect x="-16" y="-48" width="32" height="96" rx="8" fill="#eacb86" stroke="#897445" stroke-width="2"/><path d="M-7-37v70" stroke="#fff0bf" stroke-width="5"/>`;
 const pipette = `<path d="M-9-40h18v62L0 45l-9-23z" fill="#fff" stroke="#426e62" stroke-width="2"/><rect x="-12" y="-58" width="24" height="28" rx="8" fill="#d8ac6c"/><path d="M-5-22h10v44L0 35l-5-13z" fill="#cda356"/>`;
@@ -60,8 +60,9 @@ function sixty() {
   return 60;
 }
 function microscopy(l, i) {
+  if (l.method === "prepared") return preparedMicroscopy(l, i);
   let out = `<g transform="translate(155 130)"><path d="M55 230C210 230 226 72 119 29" fill="none" stroke="#57766c" stroke-width="31"/><path d="M8 35L77-14l34 44-70 47Z" fill="#c6dcd1" stroke="#35584e" stroke-width="4"/><rect x="4" y="-2" width="66" height="29" rx="5" fill="#2e5346" transform="rotate(-35 30 15)"/><path d="M5 164h180" stroke="#345449" stroke-width="15"/><path d="M8 236h208" stroke="#345449" stroke-width="23" stroke-linecap="round"/><circle cx="161" cy="113" r="22" fill="#efbb6d" stroke="#536d61" stroke-width="4"/></g><circle cx="649" cy="225" r="148" fill="#f3e9bd" stroke="#d0b66e" stroke-width="8"/>`;
-  out += `<defs><clipPath id="view"><circle cx="649" cy="225" r="142"/></clipPath></defs><g clip-path="url(#view)" opacity="${i >= 3 ? 1 : 0.35}">`;
+  out += `<defs><clipPath id="view"><circle cx="649" cy="225" r="142"/></clipPath></defs><g data-cell-view clip-path="url(#view)" opacity="${i >= 3 ? 1 : 0.35}">`;
   for (let a = 0; a < 5; a++)
     for (let b = 0; b < 4; b++) {
       const x = 480 + a * 75,
@@ -100,7 +101,7 @@ function enzymes(l, i) {
   out +=
     txt(280, 402, "Reaction mixture", 17) +
     txt(548, 403, "Iodine spotting tile", 17) +
-    txt(493, 181, "Illustrative endpoint sequence", 18);
+    txt(493, 75, "Illustrative endpoint sequence", 18);
   if (i > 0 && i < 4)
     out += actionObject(
       l,
@@ -137,7 +138,6 @@ function osmosis(l, i) {
       i === 2 ? [476, 295] : [204, 232],
     );
   if (i === 3) {
-    out += txt(170, 118, "Water moves across cell membranes", 22);
     for (let n = 0; n < 6; n++)
       out += `<circle data-water="${n}" cx="${420 + n * 14}" cy="${257 + (n % 2) * 17}" r="4" fill="#518dac"/>`;
   }
@@ -169,6 +169,7 @@ function respiration(l, i) {
   return out;
 }
 function fieldwork(l, i) {
+  if (l.method === "random") return randomFieldwork(l, i);
   let out = `<rect x="90" y="90" width="710" height="280" rx="12" fill="#deead2"/><path d="M95 120Q300 50 445 370H95Z" fill="#abc7a1" opacity=".5"/><path d="M115 340H775" stroke="#a78b59" stroke-width="5"/>`;
   for (let n = 0; n < 55; n++) {
     const x = 114 + ((n * 137) % 653),
@@ -178,7 +179,8 @@ function fieldwork(l, i) {
   for (let n = 0; n < 7; n++) out += txt(118 + n * 102, 393, `${n} m`, 15);
   const quad = `<rect x="-57" y="-57" width="114" height="114" fill="none" stroke="#f8fcf3" stroke-width="9"/><path d="M-19-57V57M19-57V57M-57-19H57M-57 19H57" stroke="#829e74" stroke-width="2"/>`;
   if (i === 1) out += actionObject(l, i, quad, [189, 173], [429, 274]);
-  else out += `<g transform="translate(${i >= 2 ? 429 : 189} 274)">${quad}</g>`;
+  else
+    out += `<g data-quadrat transform="translate(${i >= 2 ? 429 : 189} 274)">${quad}</g>`;
   return out + txt(90, 65, "Shade", 18) + txt(725, 65, "Open ground", 18);
 }
 function food(l, i) {
@@ -201,7 +203,7 @@ function food(l, i) {
   }
   if (i === 1) out += actionObject(l, i, pipette, [398, 111], [202, 169]);
   return (
-    out + txt(215, 101, "Separate samples · illustrative positive results", 20)
+    out + txt(215, 452, "Separate samples · illustrative positive results", 20)
   );
 }
 function antimicrobial(l, i) {
@@ -212,7 +214,7 @@ function antimicrobial(l, i) {
     [451, 309],
   ].forEach(([x, y], n) => {
     if (i >= 3 && n < 2)
-      out += `<ellipse cx="${x}" cy="${y}" rx="${n === 0 ? 62 : 44}" ry="${n === 0 ? 48 : 33}" fill="#f7f6db" stroke="#b2bd86" stroke-dasharray="3 4"/>`;
+      out += `<ellipse data-zone="${n}" cx="${x}" cy="${y}" rx="${n === 0 ? 62 : 44}" ry="${n === 0 ? 48 : 33}" fill="#f7f6db" stroke="#b2bd86" stroke-dasharray="3 4"/>`;
     if (i !== 1 || n !== 0)
       out += `<circle cx="${x}" cy="${y}" r="14" fill="#fff" stroke="#869172"/>`;
     out += txt(x - 32, y + 48, ["Test A", "Test B", "Control"][n], 15);
@@ -242,15 +244,20 @@ export function scene(lesson, index = 0) {
     "food-tests": food,
     antimicrobials: antimicrobial,
   }[lesson.id];
-  return `<svg viewBox="0 0 900 480" xmlns="http://www.w3.org/2000/svg" aria-label="${lesson.topic}: ${lesson.steps[index].title}" role="group"><rect width="900" height="480" rx="12" fill="#f6f8ee"/><path d="M55 370H845" stroke="#cfdbc9" stroke-width="2"/>${f(lesson, index)}</svg>`;
+  return `<svg viewBox="0 0 900 480" xmlns="http://www.w3.org/2000/svg" aria-label="${lesson.topic}: ${lesson.steps[index].title}" role="group"><defs><linearGradient id="bench-bg" x2="0" y2="1"><stop stop-color="#f6fbff"/><stop offset="1" stop-color="#dfedfc"/></linearGradient><filter id="focus-soft"><feGaussianBlur id="focus-blur" stdDeviation="0"/></filter></defs><rect width="900" height="480" rx="12" fill="url(#bench-bg)"/><path d="M40 370H860L900 480H0Z" fill="#d6e5f5" opacity=".55"/><path d="M40 370H860" stroke="#9db9d6" stroke-width="3"/><g data-apparatus>${f(lesson, index)}</g>${motionLayer(lesson.id, index)}</svg>`;
 }
 export function paintScene(root, lesson, state, p, drag) {
+  paintMotion(root, lesson, state, Math.max(0, Math.min(1, p)));
   const obj = root.querySelector("[data-object]");
   if (obj) {
     const [x, y] = obj.dataset.from.split(",").map(Number),
       [tx, ty] = obj.dataset.to.split(",").map(Number);
     const q =
-      state.mode === "try" ? (state.acted ? 1 : 0) : Math.min(1, p * 1.7);
+      state.mode === "try"
+        ? state.acted
+          ? Math.min(1, p * 3)
+          : 0
+        : Math.min(1, p * 1.7);
     const e = q * q * (3 - 2 * q);
     obj.setAttribute(
       "transform",
@@ -265,17 +272,33 @@ export function paintScene(root, lesson, state, p, drag) {
     root.querySelector("[data-target]").style.opacity = waiting ? "1" : "0";
     obj.querySelector("text")?.setAttribute("opacity", waiting ? "1" : "0");
   }
+  if (
+    lesson.id === "enzymes" &&
+    state.index === 3 &&
+    (state.mode === "watch" || state.acted)
+  ) {
+    const n = Math.min(7, Math.floor(p * 8)),
+      phase = (p * 8) % 1;
+    const tx = 503 + (n % 4) * 83,
+      ty = 205 + Math.floor(n / 4) * 58;
+    const q = phase < 0.6 ? phase / 0.6 : 1 - (phase - 0.6) / 0.4,
+      e = q * q * (3 - 2 * q);
+    obj?.setAttribute(
+      "transform",
+      `translate(${332 + (tx - 332) * e} ${145 + (ty - 145) * e - 45 * Math.sin(q * Math.PI)})`,
+    );
+  }
   if (lesson.id === "enzymes" && state.index === 3)
     root
       .querySelectorAll("[data-well]")
       .forEach((el, n) =>
         el.setAttribute(
           "fill",
-          n <= Math.floor(p * 8)
-            ? n === 7
-              ? "#cd9850"
-              : "#3c394d"
-            : "#cd9850",
+          blend(
+            "#cd9850",
+            n === 7 ? "#cd9850" : "#3c394d",
+            Math.max(0, Math.min(1, (p * 8 - n - 0.55) * 3)),
+          ),
         ),
       );
   if (lesson.id === "osmosis" && state.index === 3)
@@ -291,4 +314,190 @@ export function paintScene(root, lesson, state, p, drag) {
     root
       .querySelector("[data-marker]")
       ?.setAttribute("transform", `translate(${-p * 88} 0)`);
+}
+
+function motionLayer(id, i) {
+  if (id === "photosynthesis")
+    return `<g data-rays stroke="#e4b235" stroke-width="4" stroke-dasharray="14 12" opacity=".5"><path d="M151 220 315 252M151 236 315 285M151 252 315 316"/></g>`;
+  if (id === "microscopy")
+    return `<g data-focus-dial transform="translate(316 243)"><path d="M-12 0h24M0-12v24" stroke="#fff" stroke-width="3"/></g>`;
+  if (id === "enzymes")
+    return `<circle data-sample-drop cx="332" cy="165" r="7" fill="#c3924b"/><g data-sample-indicator><path d="M477 367h40" stroke="#1d67bc" stroke-width="4"/></g>`;
+  if (id === "osmosis" && i === 3)
+    return `<g><rect x="105" y="70" width="675" height="85" rx="15" fill="#fff" stroke="#b3cdea"/><path d="M440 82v61" stroke="#8ba7c6" stroke-width="8" stroke-dasharray="6 5"/>${Array.from({ length: 12 }, (_, n) => `<circle data-osmosis-particle="${n}" cx="${330 + n * 17}" cy="${93 + (n % 3) * 18}" r="5" fill="#258dc8"/>`).join("")}${txt(135, 110, "Water", 19)}${txt(605, 110, "Membrane", 19)}</g>`;
+  if (id === "respiration")
+    return `<g data-gas-arrow stroke="#237ab9" stroke-width="3" fill="none"><path d="M247 245v-42m-7 10 7-10 7 10"/></g>`;
+  if (id === "food-tests")
+    return `${i === 2 ? '<g data-water-bath><rect x="300" y="280" width="132" height="89" rx="9" fill="#7dc4e6" opacity=".25" stroke="#347ea7" stroke-width="3"/><path d="M305 289q18-8 35 0t35 0t35 0" fill="none" stroke="#347ea7" stroke-width="3"/></g>' : ""}<g data-reagent-tool transform="translate(202 100)">${pipette}</g><circle data-reagent-drop cx="${202 + Math.max(0, i - 1) * 164}" cy="150" r="7" fill="${["#d8ad56", "#d8ad56", "#69bade", "#9571c3", "#dce9f1"][i]}"/>`;
+  if (id === "antimicrobials" && i === 4)
+    return `<g data-zone-ruler><path d="M285 150h140m-140-8v16m70-16v16m70-16v16" stroke="#2466a8" stroke-width="4"/>${txt(294, 137, "Compare diameters", 16)}</g>`;
+  return "";
+}
+const blend = (a, b, t) =>
+  "#" +
+  [1, 3, 5]
+    .map((k) =>
+      Math.round(
+        parseInt(a.slice(k, k + 2), 16) * (1 - t) +
+          parseInt(b.slice(k, k + 2), 16) * t,
+      )
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("");
+function paintMotion(root, lesson, state, p) {
+  const i = state.index;
+  const set = (q, a, v) => root.querySelector(q)?.setAttribute(a, String(v));
+  set("[data-apparatus]", "opacity", 1);
+  if (lesson.id === "photosynthesis") {
+    set("[data-rays]", "stroke-dashoffset", -p * 160);
+    set("[data-rays]", "opacity", i >= 2 ? 0.65 : 0.2);
+    if (i >= 3)
+      root
+        .querySelectorAll("[data-liquid]")
+        .forEach((el, n) =>
+          el.setAttribute(
+            "fill",
+            blend(
+              "#c7787a",
+              ["#965aab", "#b279a9", "#b88688", "#e6bc54"][n],
+              i === 4 ? 1 : p,
+            ),
+          ),
+        );
+  }
+  if (lesson.id === "microscopy") {
+    set(
+      "[data-focus-dial]",
+      "transform",
+      `translate(316 243) rotate(${p * 180})`,
+    );
+    set("[data-cell-view]", "filter", "url(#focus-soft)");
+    set("#focus-blur", "stdDeviation", i >= 3 ? (1 - p) * 6 : 5);
+    set("[data-cell-view]", "opacity", i >= 3 ? 0.4 + p * 0.6 : 0.35);
+  }
+  if (lesson.id === "enzymes") {
+    const n = Math.min(7, Math.floor(p * 8));
+    const x = i === 3 ? 503 + (n % 4) * 83 : 332;
+    const y = i === 3 ? 266 + Math.floor(n / 4) * 58 : 248;
+    set("[data-sample-drop]", "cx", x);
+    set("[data-sample-drop]", "cy", y - 65 + ((p * 8) % 1) * 65);
+    set(
+      "[data-sample-drop]",
+      "opacity",
+      i === 3 && (p * 8) % 1 > 0.55 && (p * 8) % 1 < 0.78 ? 1 : 0,
+    );
+    set("[data-sample-indicator]", "transform", `translate(${(n % 4) * 83} 0)`);
+  }
+  if (lesson.id === "osmosis")
+    root.querySelectorAll("[data-osmosis-particle]").forEach((el, n) => {
+      const direction = n < 8 ? 1 : -1;
+      el.setAttribute(
+        "transform",
+        `translate(${direction * (p * 110 - 55)} 0)`,
+      );
+    });
+  if (lesson.id === "respiration") {
+    set(
+      "[data-gas-arrow]",
+      "opacity",
+      i === 3 ? 0.4 + 0.6 * Math.abs(Math.sin(p * Math.PI * 5)) : 0,
+    );
+    set("[data-gas-arrow]", "transform", `translate(0 ${-((p * 3) % 1) * 12})`);
+    if (i === 4) set("[data-marker]", "transform", "translate(-88 0)");
+  }
+  if (lesson.id === "fieldwork" && lesson.method === "random") {
+    const positions = [
+      [230, 200],
+      [630, 290],
+      [430, 160],
+      [560, 220],
+    ];
+    if (i === 3) {
+      const t = Math.min(2.999, p * 3),
+        n = Math.floor(t),
+        q = t - n,
+        e = q * q * (3 - 2 * q);
+      const a = positions[n],
+        b = positions[n + 1];
+      set(
+        "[data-random-quadrat]",
+        "transform",
+        `translate(${a[0] + (b[0] - a[0]) * e} ${a[1] + (b[1] - a[1]) * e})`,
+      );
+    }
+    set("[data-coordinate-dot]", "opacity", i === 1 ? Math.min(1, p * 2) : 1);
+  }
+  if (lesson.id === "fieldwork" && lesson.method !== "random") {
+    if (i === 0)
+      set("[data-quadrat]", "transform", `translate(${189 + p * 240} 274)`);
+    if (i === 3)
+      set("[data-quadrat]", "transform", `translate(${429 + p * 200} 274)`);
+    set("[data-sampling-readout]", "opacity", 0.4 + 0.6 * Math.min(1, p * 3));
+  }
+  if (lesson.id === "food-tests") {
+    const x = 202 + Math.max(0, i - 1) * 164;
+    const arrival = Math.min(1, p / 0.3);
+    set(
+      "[data-reagent-tool]",
+      "transform",
+      `translate(${x - 90 + 90 * arrival} ${115 - 15 * arrival}) rotate(${i === 4 ? arrival * 25 : 0})`,
+    );
+    set("[data-reagent-tool]", "opacity", i > 1 ? 1 : 0);
+    set(
+      "[data-reagent-drop]",
+      "cy",
+      150 + Math.max(0, Math.min(1, (p - 0.3) / 0.2)) * 110,
+    );
+    set(
+      "[data-reagent-drop]",
+      "opacity",
+      i === 0 || p < 0.3 || p > 0.5 ? 0 : 1,
+    );
+    root.querySelectorAll("[data-liquid]").forEach((el, n) => {
+      if (i === n + 1)
+        el.setAttribute(
+          "fill",
+          blend(
+            ["#d8b465", "#69bade", "#69bade", "#d4e7ee"][n],
+            ["#34313c", "#c77838", "#9e70b4", "#f4f6fa"][n],
+            Math.max(0, Math.min(1, (p - 0.45) / 0.55)),
+          ),
+        );
+    });
+  }
+  if (lesson.id === "antimicrobials") {
+    root.querySelectorAll("[data-zone]").forEach((el, n) => {
+      el.setAttribute(
+        "rx",
+        i === 3 ? 14 + ((n === 0 ? 62 : 44) - 14) * p : n === 0 ? 62 : 44,
+      );
+      el.setAttribute(
+        "ry",
+        i === 3 ? 14 + ((n === 0 ? 48 : 33) - 14) * p : n === 0 ? 48 : 33,
+      );
+    });
+    set("[data-zone-ruler]", "transform", `translate(0 ${p * 60})`);
+  }
+}
+
+function preparedMicroscopy(l, i) {
+  const mapped = i === 1 ? 3 : i >= 2 ? 4 : 0;
+  const steps = l.steps.map((s) => ({ ...s, action: null }));
+  if (i === 1) steps[3] = { ...l.steps[1] };
+  return microscopy({ ...l, method: "onion", steps }, mapped);
+}
+function randomFieldwork(l, i) {
+  const base = {
+    ...l,
+    method: "transect",
+    steps: l.steps.map((s) => ({ ...s, action: null })),
+  };
+  let art = fieldwork(base, 0).replace(/<g data-quadrat[\s\S]*?<\/g>/, "");
+  art += `<path d="M90 90V370H800" fill="none" stroke="#2466a8" stroke-width="4"/><g data-coordinate-dot><path d="M230 90V200H90" fill="none" stroke="#de9238" stroke-width="3" stroke-dasharray="8 6"/><circle cx="230" cy="200" r="7" fill="#de9238"/></g>`;
+  const q = `<rect x="-48" y="-48" width="96" height="96" fill="none" stroke="#fff" stroke-width="8"/><path d="M-16-48V48M16-48V48M-48-16H48M-48 16H48" stroke="#628c76" stroke-width="2"/>`;
+  if (i === 2) art += actionObject(l, i, q, [730, 140], [230, 200]);
+  else if (i >= 3)
+    art += `<g data-random-quadrat transform="translate(${i === 4 ? "560 220" : "230 200"})">${q}</g>`;
+  return art + txt(100, 445, "Random positions · schematic sampling area", 19);
 }

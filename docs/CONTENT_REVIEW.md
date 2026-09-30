@@ -38,3 +38,22 @@ The food-test student sheet lists inconsistent water-bath temperatures in equipm
 No numerical experimental model is claimed. Indicator colours, balance masses, capillary movement, cell illustration, landscape and inhibition zones are pedagogical examples, not measured video results or calibrated predictions. No numerical pH is inferred from a schematic colour. Inhibition-zone size is affected by diffusion and dose and is not a clinical ranking.
 
 Source PDFs carry copyright notices. They are linked, not bundled. Do not add third-party transcripts, screenshots, audio, original worksheets or permission correspondence to the public repository. Keep rights evidence in a genuinely private store.
+
+## 30 September 2026: supplied PMT notes review
+
+All eight user-supplied PMT PDFs were read. They carry CC BY-NC-ND notices; the source PDFs and screenshots are not republished in this repository. New notebook explanations and illustrations are independently written. Supplied screenshots informed the broad instruction-panel/scene/playback arrangement, not copied assets or branding.
+
+Corrections and method boundaries:
+
+- **Microscopy:** never bring the objective into contact with the coverslip. At high power use fine focus. Water-first and iodine-first mounting sequences are identified as variants. Prepared onion-slide observation has its own selectable animation.
+- **Enzymes:** the notes' instruction to repeat starch addition is a cross-reference error; repeat sampling instead. Pearson and PMT volumes/intervals differ. The player retains the Pearson schedule and identifies the alternate protocol rather than mixing quantities.
+- **Osmosis:** insert each potato piece once (the supplied method repeats this instruction). Calculate percentage mass change for comparisons; the zero-change crossing estimates isotonic concentration.
+- **Photosynthesis:** algal-ball indicator observations must not be described as pondweed bubble counts. Colour is net CO₂ change, not an uncalibrated numerical rate. PMT/Pearson exposure durations differ. The player retains the Pearson variant. No invented experimental readings.
+- **Respiration:** a rate requires elapsed time; mass-normalised rate = volume uptake / time / mass. The source notes' volume/mass expression is incomplete as a rate.
+- **Fieldwork:** fixed-interval quadrats are interrupted systematic sampling, not continuous sampling. Random quadrats now have a separate selectable sequence and estimation explanation.
+- **Food tests:** positive Benedict's observations are not restricted to brick red. Ethanol is kept separate from the heated Benedict's setup. All four tests have their own animated stage.
+- **Antimicrobials:** zone size is conditional on diffusion, dose and organism; inhibited visible growth is not proof of complete killing. The closed-plate preview remains interpretive; teacher-managed preparation/incubation are not presented as an unsupervised culture tutorial.
+
+Additional cross-checks: SAPS algal-ball resource (https://www.saps.org.uk/teaching-resources/resources/235/algal-balls-photosynthesis-using-algae-wrapped-in-jelly-balls/), Practical Biology respirometry (https://practicalbiology.org/energy/gas-balance-in-respiration-and-photosynthesis/measuring-the-rate-of-metabolism.html), Microscopy UK basic technique (https://www.microscopy-uk.org.uk/primer/basics.htm).
+
+Video timing and exact footage remain unverified. This revision has ten method sequences across eight practicals; it does not claim every possible experimental variant. Random field positions and colour-development curves are illustrative, not measured data. Method changes reset playback; versioned saved checkpoints distinguish alternate methods.

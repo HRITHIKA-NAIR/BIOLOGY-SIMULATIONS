@@ -1,4 +1,5 @@
 import { animate } from "animejs";
+import { withMethod } from "../../../content/methods.js";
 import { practicals } from "../../../content/practicals.js";
 import { initial, seek, advance, awaiting, snapshot, clamp } from "./engine.js";
 import { scene, paintScene } from "./scenes.js";
@@ -92,8 +93,11 @@ function confirmAction(title, text, fn) {
 }
 $("#confirm-no")?.addEventListener("click", () => $("#confirm-dialog").close());
 if ($("#player")) {
-  const lesson = practicals.find((p) => p.id === document.body.dataset.lesson);
+  const baseLesson = practicals.find(
+    (p) => p.id === document.body.dataset.lesson,
+  );
   const store = readStore();
+  let lesson = withMethod(baseLesson, store.lessons?.[baseLesson.id]?.method);
   let remember = store.remember === true;
   let state = initial(lesson, store.lessons?.[lesson.id]),
     last = null,
@@ -101,6 +105,18 @@ if ($("#player")) {
     drag = null,
     dragStart = null,
     lastSave = 0;
+  let playbackSpeed = 1;
+  $("#playback-speed").onchange = (e) => {
+    playbackSpeed = Number(e.target.value);
+  };
+  $("#large-text").onchange = (e) => {
+    $("#player").classList.toggle("large-text", e.target.checked);
+  };
+  $("#zoom-scene").onclick = (e) => {
+    const on = $("#scene").classList.toggle("zoomed");
+    e.target.setAttribute("aria-pressed", String(on));
+    e.target.textContent = on ? "Fit apparatus" : "Enlarge apparatus";
+  };
   const root = $("#scene");
   const status = $("#save-status");
   $("#remember").checked = remember;
@@ -109,7 +125,10 @@ if ($("#player")) {
       status.textContent = "Progress is not being saved.";
       return;
     }
-    status.textContent = saveLesson(lesson.id, snapshot(lesson, state))
+    status.textContent = saveLesson(lesson.id, {
+      ...snapshot(lesson, state),
+      method: lesson.method,
+    })
       ? "Saved on this device."
       : "Could not save: browser storage is unavailable.";
   };
@@ -120,13 +139,52 @@ if ($("#player")) {
     writeStore(x);
     save();
   };
-  const mount = () => {
+  const mount = (transition = false) => {
+    const previous =
+      transition && !reduced.matches && !awaiting(lesson, state)
+        ? root.querySelector("svg")?.cloneNode(true)
+        : null;
     selected = false;
     drag = null;
     root.innerHTML = scene(lesson, state.index);
+    if (previous) {
+      previous
+        .querySelectorAll("[tabindex]")
+        .forEach((el) => el.removeAttribute("tabindex"));
+      previous.querySelectorAll("*").forEach((el) => {
+        for (const a of [...el.attributes]) {
+          if (a.name.startsWith("data-")) el.removeAttribute(a.name);
+        }
+      });
+      const ghost = document.createElement("div");
+      ghost.className = "scene-ghost";
+      ghost.inert = true;
+      ghost.setAttribute("aria-hidden", "true");
+      ghost.innerHTML = previous.outerHTML
+        .replace(/id="([^"]+)"/g, 'id="old-$1"')
+        .replace(/url\(#/g, "url(#old-");
+      root.append(ghost);
+    }
+    $$("[data-step-label]").forEach(
+      (el, i) => (el.textContent = lesson.steps[i].title),
+    );
+    $$("[data-seek]").forEach((el, i) =>
+      el.setAttribute("aria-label", `Step ${i + 1}: ${lesson.steps[i].title}`),
+    );
+    const written = $("#written-sequence");
+    written.replaceChildren(
+      ...lesson.steps.map((s) => {
+        const li = document.createElement("li");
+        const strong = document.createElement("strong");
+        strong.textContent = s.title + ". ";
+        li.append(strong, document.createTextNode(s.text));
+        return li;
+      }),
+    );
     $("#stage-title").textContent = lesson.steps[state.index].title;
     $("#stage-number").textContent = state.index + 1;
     $("#caption").textContent = lesson.steps[state.index].text;
+    $("#observation").textContent = lesson.observations[state.index];
     $("#stage-count").textContent =
       `Step ${state.index + 1} of ${lesson.steps.length}`;
     $$("[data-seek]").forEach((b) => {
@@ -139,6 +197,10 @@ if ($("#player")) {
   };
   const paint = () => {
     const wait = awaiting(lesson, state);
+    $("#playback-progress").value =
+      ((state.index + state.elapsed / lesson.steps[state.index].duration) /
+        lesson.steps.length) *
+      100;
     $("#play").textContent = state.playing && !wait ? "Pause" : "Play";
     $("#play").disabled =
       wait || (state.completed && state.index === lesson.steps.length - 1);
@@ -152,8 +214,16 @@ if ($("#player")) {
     $$("[data-mode]").forEach((b) =>
       b.setAttribute("aria-pressed", String(b.dataset.mode === state.mode)),
     );
+    const ghost = root.querySelector(".scene-ghost");
+    if (ghost) {
+      const t = reduced.matches ? 1 : Math.min(1, state.elapsed / 0.85);
+      ghost.style.opacity = String(1 - t);
+      ghost.style.transform = `translateX(${-t * 30}px)`;
+      root.querySelector("svg").style.opacity = String(t);
+      if (t === 1) ghost.remove();
+    }
     paintScene(
-      root,
+      root.querySelector("svg"),
       lesson,
       state,
       reduced.matches
@@ -179,6 +249,16 @@ if ($("#player")) {
     save();
     $("#play").focus();
   };
+  if ($("#method-choice")) {
+    $("#method-choice").value = lesson.method;
+    $("#method-choice").onchange = (e) => {
+      lesson = withMethod(baseLesson, e.target.value);
+      state = initial(lesson);
+      mount();
+      paint();
+      save();
+    };
+  }
   $("#play").onclick = () => {
     state.playing = !state.playing;
     paint();
@@ -297,9 +377,9 @@ if ($("#player")) {
     last = now;
     if (!dragStart) {
       const old = state;
-      state = advance(lesson, state, dt);
+      state = advance(lesson, state, dt * playbackSpeed);
       if (old.index !== state.index) {
-        mount();
+        mount(true);
         save();
       }
       if (!old.completed && state.completed) save();
@@ -337,7 +417,9 @@ function renderLearning() {
   if (!target) return;
   const saved = readStore().lessons || {};
   target.replaceChildren();
-  const entries = practicals.filter((p) => saved[p.id]?.version === p.version);
+  const entries = practicals
+    .map((p) => withMethod(p, saved[p.id]?.method))
+    .filter((p) => saved[p.id]?.version === p.version);
   if (!entries.length) {
     const p = document.createElement("p");
     p.className = "empty";
