@@ -1,26 +1,54 @@
-# Biology simulations
+# Practical room
 
-Original browser-based animated practicals, built one practical at a time. First activity: photosynthesis.
+An original, Boardworks-inspired school science practical website. This branch replaces the single-page prototype with a static, modular Biology preview collection. The original code is retained under `legacy/photosynthesis/` and at its existing route for comparison; the new catalogue does not link to that unverified pondweed model.
+
+## Current scope
+
+Pearson Edexcel GCSE (9–1) Combined Science (1SC0), Biology: microscopy 1.6, enzymes 1.10, osmosis 1.16, photosynthesis 6.5, respiration 8.11 and fieldwork 9.5. Food tests 1.13B and antimicrobial effects 5.18B are additional for this collection and **core in separate GCSE Biology**, not Combined Science core.
+
+Eight original **reference-based previews** include Watch/Try modes, direct SVG object actions, keyboard/select-and-place alternatives, five-stage written summaries, one quiz each, opt-in device checkpoints and generated PDF preview notes. Photosynthesis uses an algal-ball/indicator method from the Pearson reference sheet. The old bubble-counting prototype is not silently relabelled.
+
+**Exact video fidelity is not verified.** YouTube video/transcript retrieval was unavailable during this implementation. Video URLs are recorded but no timestamps have been invented. Source sheets were consulted, not copied or redistributed. These previews must not be described as complete, video-matched practicals. Antimicrobials is an interpretation-only scene, not a complete culture protocol. See `docs/CONTENT_REVIEW.md`.
 
 ## Run
-Open index.html locally, or open the published GitHub Pages site. No build or dependencies required.
 
-## Animated lesson
-- Watch is the default. Press Play once: apparatus fades into place, pondweed lowers into its tube, the lamp moves to 40, 20 and 10 cm, and each adjustment and measurement plays automatically.
-- Try it follows the same sequence but pauses at lamp-placement stages. Drag the lamp itself into the outlined destination. Touch and mouse work through pointer events. Alternatively select the lamp then its outline, or focus the lamp and press Enter/Space.
-- Play/Pause uses one animation clock. Back and Next reconstruct the selected stage. Restart and switching modes reset the lesson. Skipping measurements marks results as skipped, not as observed.
-- Results appear only at the conclusion. No sliders, separate timers, manual recording or dashboard panels.
+Node 22.12+ (CI uses Node 24).
 
-## Files
-photosynthesis/index.html: scene, explanation and playback controls.
-photosynthesis/style.css: responsive player styling.
-photosynthesis/script.js: automatic stage sequence, direct lamp interaction, bubbles and results.
+```sh
+npm ci
+npm run build
+npm run dev
+```
 
-## Scientific scope
-Illustrative model: 90 / (1 + (distance_cm / 20)^2) bubbles per minute; deterministic simulated counts. Each 60-second measurement plays in 12 seconds. Adjustment time is abbreviated. Temperature is held at 25°C; pondweed and solution concentration stay fixed. Real bubbles differ in size and real measurements need repeats. This demonstration is not a replacement for carrying out or evaluating the full practical. The reference video's complete method has not yet been verified; distances and timings remain prototype choices.
+Open http://localhost:4173/BIOLOGY-SIMULATIONS/ . `npm run dev` builds first and serves the production output; restart it after source changes.
 
-Reference video: https://www.youtube.com/watch?v=cBCKedXdFeE
-AQA: https://www.aqa.org.uk/subjects/biology/gcse/biology-8461/specification/practical-assessment
+```sh
+npm test
+npx playwright install chromium
+npm run test:e2e
+```
 
-## Validation
-Syntax and state tests passed: full Watch sequence, simulated counts (18,45,72), Try-mode pauses, placement continuation, pause, back-navigation invalidation, skipped data and restart. Browser rendering and real pointer-device testing remain unverified because no browser executable is available in the authoring environment.
+## Architecture
+
+| Path | Responsibility |
+|---|---|
+| `apps/web/src/app.js` | Catalogue, player controls, quiz, saving, offline UI |
+| `apps/web/src/engine.js` | Pure state transitions, stage seeking and snapshots |
+| `apps/web/src/scenes.js` | Original SVG apparatus and state-driven animation |
+| `apps/web/src/storage.js` | Scoped browser storage with failure handling |
+| `apps/web/src/style.css` | Responsive design, focus states and reduced motion |
+| `content/practicals.js` | Lesson data, qualification mapping, references and review status |
+| `content/policies.js` | Preview-accurate policy and accessibility copy |
+| `scripts/build.mjs` | Static pages, bundled assets, PDF summaries, manifest, sitemap and worker |
+| `tests/` | Engine and real-browser regression checks |
+| `docs/` | Content review, security, release and platform decisions |
+| `legacy/` | Preserved initial prototype |
+| `dist/` | Generated deployment output; never hand-edit |
+
+There is **no backend, database, authentication or user API** in this version. Supabase is intentionally not provisioned. Progress is local to one browser profile, not an account or cross-device sync. Offline download caches this version’s public pages/assets/PDFs; external resources are excluded. Browser storage may be evicted. Clear progress and remove offline files are separate controls.
+
+## Delivery boundaries
+
+This is a reviewable platform foundation, not the finished full-syllabus service. Login, cloud resume, server-validated points, badges and streaks remain future work. Chemistry and Physics truthfully show planned collections. Original apparatus illustration and animation are used rather than Boardworks assets. Anime.js handles optional background motion; adding Three.js, React Spring and Lenis together would add weight without teaching value here. Native scrolling is retained.
+
+See `docs/DEPLOYMENT.md` for free static hosting, explicit indexing controls and owner actions. `INDEXABLE` defaults to false; previews remain noindex even when catalogue indexing is enabled. No Search Console submission has been made.
