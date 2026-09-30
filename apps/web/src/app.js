@@ -21,6 +21,15 @@ function motion() {
       loop: true,
       ease: "inOutSine",
     });
+  document.documentElement.dataset.labMotion =
+    off || document.hidden ? "off" : "on";
+  const labButton = $("#lab-motion");
+  if (labButton) {
+    labButton.textContent = off ? "Play animation" : "Pause animation";
+    labButton.setAttribute("aria-pressed", String(off));
+    labButton.disabled = reduced.matches;
+    if (reduced.matches) labButton.textContent = "Reduced motion on";
+  }
   const b = $("#motion");
   if (b) {
     b.textContent = off ? "Background motion: off" : "Background motion: on";
@@ -33,6 +42,13 @@ $("#motion")?.addEventListener("click", () => {
   writeStore(s);
   motion();
 });
+$("#lab-motion")?.addEventListener("click", () => {
+  const s = readStore();
+  s.motionOff = !s.motionOff;
+  writeStore(s);
+  motion();
+});
+document.addEventListener("visibilitychange", motion);
 reduced.addEventListener("change", motion);
 motion();
 if ($("#catalogue")) {
